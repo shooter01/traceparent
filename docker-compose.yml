@@ -1,0 +1,60 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: api
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: alloy:4318
+      HOOK_URL: http://hook:8081/hook
+      APP_ENV: demo
+    ports:
+      - "8080:8080"
+    depends_on:
+      - alloy
+      - hook
+
+  hook:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: hook
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: alloy:4318
+      APP_ENV: demo
+    depends_on:
+      - alloy
+
+  alloy:
+    image: grafana/alloy:latest
+    command: ["run", "/etc/alloy/config.alloy"]
+    volumes:
+      - ./configs/alloy/config.alloy:/etc/alloy/config.alloy:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    depends_on:
+      - tempo
+
+  tempo:
+    image: grafana/tempo:2.10.3
+    command: ["-target=all", "-config.file=/etc/tempo/tempo.yml"]
+    volumes:
+      - ./configs/tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+    ports:
+      - "3200:3200"
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - tempo
