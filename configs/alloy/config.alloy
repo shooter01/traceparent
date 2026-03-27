@@ -5,28 +5,29 @@ otelcol.receiver.otlp "default" {
 
   http {
     endpoint = "0.0.0.0:4318"
+
+    cors {
+      allowed_origins = [
+        "http://localhost:3001",
+      ]
+      allowed_headers = ["*"]
+      max_age = 7200
+    }
   }
 
   output {
     traces = [otelcol.processor.batch.default.input]
-    logs    = []
-    metrics = []
   }
 }
 
 otelcol.processor.batch "default" {
   output {
-    traces = [otelcol.exporter.otlp.tempo.input]
-    logs    = []
-    metrics = []
+    traces = [otelcol.exporter.otlphttp.tempo.input]
   }
 }
 
-otelcol.exporter.otlp "tempo" {
+otelcol.exporter.otlphttp "tempo" {
   client {
-    endpoint = "tempo:4317"
-    tls {
-      insecure = true
-    }
+    endpoint = "http://tempo:4318"
   }
 }

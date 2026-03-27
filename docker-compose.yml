@@ -27,6 +27,18 @@ services:
     depends_on:
       - alloy
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      API_INTERNAL_URL: http://api:8080
+      GRAFANA_URL: http://localhost:3000
+    ports:
+      - "3001:3000"
+    depends_on:
+      - api
+
   alloy:
     image: grafana/alloy:latest
     command: ["run", "/etc/alloy/config.alloy"]
@@ -47,7 +59,7 @@ services:
       - "3200:3200"
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.2.8-security-01
     environment:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
