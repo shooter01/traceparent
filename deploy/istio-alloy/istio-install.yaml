@@ -1,0 +1,15 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+spec:
+  profile: default
+  meshConfig:
+    enableTracing: true
+    accessLogFile: /dev/stdout
+    accessLogEncoding: TEXT
+    defaultConfig:
+      tracing: {}
+    extensionProviders:
+      - name: otel-tracing
+        opentelemetry:
+          service: alloy.observability.svc.cluster.local
+          port: 4317
