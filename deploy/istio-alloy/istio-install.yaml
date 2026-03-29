@@ -11,5 +11,5 @@ spec:
     extensionProviders:
       - name: otel-tracing
         opentelemetry:
-          service: alloy.observability.svc.cluster.local
+          service: tempo.observability.svc.cluster.local
           port: 4317
